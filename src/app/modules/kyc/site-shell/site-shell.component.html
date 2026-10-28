@@ -20,7 +20,16 @@
     </main>
 
     <footer class="site-footer">
-        <p>Vérification faite par Didit.</p>
+        <div>
+            <p>Vérification faite par Didit.</p>
+            @if (diditConfigured === true) {
+                <p>Didit est configuré.</p>
+            } @else if (diditConfigured === false) {
+                <p>Didit n’est pas configuré.</p>
+            } @else if (healthMessage) {
+                <p>{{ healthMessage }}</p>
+            }
+        </div>
         <nav>
             <a
                 href="https://didit.me/terms/verification-privacy-notice"

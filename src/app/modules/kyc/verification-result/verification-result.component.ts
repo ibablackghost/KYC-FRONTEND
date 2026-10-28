@@ -9,6 +9,7 @@ import {
     isTerminalKycStatus,
     kycStatusLabel,
     kycStatusTone,
+    withLastKnownVerification,
 } from 'app/core/kyc/kyc.service';
 import { interval, startWith, switchMap, take, takeWhile } from 'rxjs';
 
@@ -37,7 +38,6 @@ export class VerificationResultComponent implements OnInit {
     ngOnInit(): void {
         this._sessionId =
             this._route.snapshot.queryParamMap.get('verificationSessionId') ||
-            this._route.snapshot.queryParamMap.get('session_id') ||
             sessionStorage.getItem('kycSessionId') ||
             '';
 
@@ -74,10 +74,13 @@ export class VerificationResultComponent implements OnInit {
             )
             .subscribe({
                 next: (response) => {
-                    this.account = response.account;
+                    this.account = withLastKnownVerification(
+                        this.account,
+                        response.account
+                    );
                     this.loading = false;
-                    this.waiting = !isTerminalKycStatus(response.account.status);
-                    this.errorMessage = response.account.verificationError || '';
+                    this.waiting = !isTerminalKycStatus(this.account.status);
+                    this.errorMessage = '';
                 },
                 error: (error) => {
                     this.loading = false;

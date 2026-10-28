@@ -4,6 +4,7 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import {
     KycService,
     httpErrorMessage,
@@ -18,9 +19,11 @@ import {
 export class AccountOpeningComponent {
     private readonly _formBuilder = inject(FormBuilder);
     private readonly _kyc = inject(KycService);
+    private readonly _sanitizer = inject(DomSanitizer);
 
     submitting = false;
     errorMessage = '';
+    verificationUrl: SafeResourceUrl | null = null;
 
     readonly form = this._formBuilder.nonNullable.group({
         firstName: ['', [Validators.required, Validators.minLength(2)]],
@@ -46,7 +49,14 @@ export class AccountOpeningComponent {
                     sessionStorage.setItem('kycSessionId', response.account.sessionId);
                 }
                 sessionStorage.setItem('kycAccountId', response.account.id);
-                window.location.href = response.verificationUrl;
+                const frameUrl = this._frameUrl(response.verificationUrl);
+                if (!frameUrl) {
+                    this.submitting = false;
+                    this.errorMessage = 'Le lien de vérification est invalide.';
+                    return;
+                }
+                this.verificationUrl = frameUrl;
+                this.submitting = false;
             },
             error: (error) => {
                 this.submitting = false;
@@ -56,5 +66,32 @@ export class AccountOpeningComponent {
                 );
             },
         });
+    }
+
+    onFrameLoad(event: Event): void {
+        const frame = event.target as HTMLIFrameElement;
+        try {
+            const next = frame.contentWindow?.location;
+            if (!next || next.origin !== window.location.origin) {
+                return;
+            }
+            if (next.pathname.startsWith('/verification')) {
+                window.location.assign(next.pathname + next.search);
+            }
+        } catch {
+            // La page Didit est encore affichée.
+        }
+    }
+
+    private _frameUrl(url: string): SafeResourceUrl | null {
+        try {
+            const parsed = new URL(url);
+            if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+                return null;
+            }
+            return this._sanitizer.bypassSecurityTrustResourceUrl(url);
+        } catch {
+            return null;
+        }
     }
 }

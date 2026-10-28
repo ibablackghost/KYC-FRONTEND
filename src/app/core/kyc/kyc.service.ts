@@ -1,5 +1,6 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
+import { environment } from 'environments/environment';
 import { Observable } from 'rxjs';
 
 export interface IdentityDocumentSummary {
@@ -62,6 +63,11 @@ export interface OpenAccountResponse {
     verificationUrl: string;
 }
 
+export interface HealthStatus {
+    ok: boolean;
+    diditConfigured: boolean;
+}
+
 const STATUS_LABELS: Record<string, string> = {
     approved: 'Approuvé',
     declined: 'Refusé',
@@ -78,26 +84,62 @@ const STATUS_LABELS: Record<string, string> = {
 @Injectable({ providedIn: 'root' })
 export class KycService {
     private readonly _http = inject(HttpClient);
+    private readonly _json = {
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+        withCredentials: false,
+    };
 
     openAccount(payload: OpenAccountPayload): Observable<OpenAccountResponse> {
-        return this._http.post<OpenAccountResponse>('/api/accounts/', payload);
+        return this._http.post<OpenAccountResponse>(
+            this._url('/api/accounts/'),
+            payload,
+            this._json
+        );
     }
 
     listAccounts(): Observable<{ accounts: AccountApplication[] }> {
-        return this._http.get<{ accounts: AccountApplication[] }>('/api/accounts/');
+        return this._http.get<{ accounts: AccountApplication[] }>(
+            this._url('/api/accounts/'),
+            this._json
+        );
     }
 
     getAccount(id: string): Observable<{ account: AccountApplication }> {
         return this._http.get<{ account: AccountApplication }>(
-            `/api/accounts/${id}/`
+            this._url(`/api/accounts/${id}/`),
+            this._json
         );
     }
 
     getVerification(sessionId: string): Observable<{ account: AccountApplication }> {
         return this._http.get<{ account: AccountApplication }>(
-            `/api/verifications/${sessionId}/`
+            this._url(`/api/verifications/${sessionId}/`),
+            this._json
         );
     }
+
+    health(): Observable<HealthStatus> {
+        return this._http.get<HealthStatus>(this._url('/api/health/'), this._json);
+    }
+
+    private _url(path: string): string {
+        const base = environment.apiUrl.replace(/\/$/, '');
+        return `${base}${path}`;
+    }
+}
+
+export function withLastKnownVerification(
+    previous: AccountApplication | null,
+    incoming: AccountApplication
+): AccountApplication {
+    if (
+        previous?.verification &&
+        incoming.verificationError &&
+        !incoming.verification
+    ) {
+        return { ...incoming, verification: previous.verification };
+    }
+    return incoming;
 }
 
 export function kycStatusLabel(status: string | null | undefined): string {
@@ -129,8 +171,10 @@ export function formatKycScore(score: number | null | undefined): string | null 
         return null;
     }
 
-    const percent = score <= 1 ? Math.round(score * 100) : Math.round(score);
-    return `${percent} %`;
+    const text = new Intl.NumberFormat('fr-FR', {
+        maximumFractionDigits: 1,
+    }).format(score);
+    return `${text} %`;
 }
 
 export function isTerminalKycStatus(status: string | null | undefined): boolean {
@@ -149,17 +193,8 @@ function readErrorMessage(body: unknown): string | null {
     if (!body || typeof body !== 'object') {
         return null;
     }
-    const record = body as Record<string, unknown>;
-    if (typeof record.message === 'string') {
-        return record.message;
-    }
-    if (typeof record.detail === 'string') {
-        return record.detail;
-    }
-    if (Array.isArray(record.detail)) {
-        return record.detail.map(String).join(' ');
-    }
-    return null;
+    const message = (body as { message?: unknown }).message;
+    return typeof message === 'string' ? message : null;
 }
 
 export function httpErrorMessage(error: unknown, fallback: string): string {

@@ -32,6 +32,9 @@
         @if (waiting) {
             <p class="muted">Actualisation automatique pendant la capture.</p>
         }
+        @if (errorMessage) {
+            <div class="warning">{{ errorMessage }}</div>
+        }
         @if (account.verificationError) {
             <div class="warning">{{ account.verificationError }}</div>
         }

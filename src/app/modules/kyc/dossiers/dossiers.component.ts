@@ -7,6 +7,7 @@ import {
     httpErrorMessage,
     kycStatusLabel,
     kycStatusTone,
+    withLastKnownVerification,
 } from 'app/core/kyc/kyc.service';
 
 @Component({
@@ -35,7 +36,9 @@ export class DossiersComponent implements OnInit {
         this._kyc.getAccount(account.id).subscribe({
             next: (response) => {
                 this.accounts = this.accounts.map((item) =>
-                    item.id === response.account.id ? response.account : item
+                    item.id === response.account.id
+                        ? withLastKnownVerification(item, response.account)
+                        : item
                 );
                 this.refreshingId = '';
             },

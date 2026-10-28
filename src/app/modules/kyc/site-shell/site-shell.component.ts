@@ -1,5 +1,6 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { KycService, httpErrorMessage } from 'app/core/kyc/kyc.service';
 
 @Component({
     selector: 'kyc-site-shell',
@@ -18,4 +19,23 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
         `,
     ],
 })
-export class SiteShellComponent {}
+export class SiteShellComponent implements OnInit {
+    private readonly _kyc = inject(KycService);
+
+    diditConfigured: boolean | null = null;
+    healthMessage = '';
+
+    ngOnInit(): void {
+        this._kyc.health().subscribe({
+            next: (health) => {
+                this.diditConfigured = health.diditConfigured;
+            },
+            error: (error) => {
+                this.healthMessage = httpErrorMessage(
+                    error,
+                    'Le serveur de vérification est injoignable.'
+                );
+            },
+        });
+    }
+}

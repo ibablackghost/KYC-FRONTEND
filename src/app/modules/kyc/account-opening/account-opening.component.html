@@ -1,3 +1,12 @@
+@if (verificationUrl) {
+    <iframe
+        [src]="verificationUrl"
+        title="Vérification d'identité"
+        allow="camera; microphone; geolocation; clipboard-write; fullscreen; autoplay; encrypted-media"
+        style="width: 100%; height: 100vh; border: none;"
+        (load)="onFrameLoad($event)"
+    ></iframe>
+} @else {
 <section class="open">
     <div class="guide">
         <p class="kicker">Étape 1 sur 2</p>
@@ -111,3 +120,4 @@
         </button>
     </form>
 </section>
+}

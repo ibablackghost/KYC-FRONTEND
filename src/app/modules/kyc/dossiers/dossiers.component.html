@@ -59,6 +59,10 @@
                 }
             }
 
+            @if (account.verificationError) {
+                <div class="warning">{{ account.verificationError }}</div>
+            }
+
             @if (account.verification?.document?.fullName) {
                 <p>
                     Nom lu sur la pièce : {{ account.verification?.document?.fullName }}
