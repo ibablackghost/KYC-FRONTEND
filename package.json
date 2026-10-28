@@ -8,6 +8,7 @@
     "scripts": {
         "ng": "ng",
         "start": "ng serve",
+        "api:mock": "node server/index.mjs",
         "build": "ng build",
         "watch": "ng build --watch --configuration development",
         "test": "ng test"

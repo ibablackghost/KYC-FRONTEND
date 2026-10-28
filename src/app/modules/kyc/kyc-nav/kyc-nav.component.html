@@ -1,0 +1,24 @@
+<header
+    class="flex flex-col gap-4 border-b bg-card px-6 py-4 sm:flex-row sm:items-center sm:justify-between"
+>
+    <a class="text-xl font-semibold tracking-tight" routerLink="/ouvrir-compte">
+        Ouverture de compte
+    </a>
+    <nav class="flex items-center gap-2">
+        <a
+            mat-button
+            routerLink="/ouvrir-compte"
+            routerLinkActive="bg-primary-50 text-primary-700"
+            [routerLinkActiveOptions]="{ exact: true }"
+        >
+            Nouvelle demande
+        </a>
+        <a
+            mat-button
+            routerLink="/dossiers"
+            routerLinkActive="bg-primary-50 text-primary-700"
+        >
+            Dossiers
+        </a>
+    </nav>
+</header>

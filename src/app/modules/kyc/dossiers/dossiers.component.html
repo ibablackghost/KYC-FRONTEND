@@ -1,0 +1,92 @@
+<section class="page-title">
+    <h1>Dossiers</h1>
+    <a class="button" routerLink="/ouvrir-compte">Nouvelle demande</a>
+</section>
+
+@if (loading) {
+    <p class="muted">Chargement des dossiers…</p>
+}
+
+@if (errorMessage) {
+    <div class="form-error">{{ errorMessage }}</div>
+}
+
+@if (!loading && !accounts.length) {
+    <article class="empty">
+        <h2>Aucun dossier</h2>
+        <p>La première ouverture de compte apparaîtra ici.</p>
+        <a class="button" routerLink="/ouvrir-compte">Créer une demande</a>
+    </article>
+}
+
+<div class="dossier-list">
+    @for (account of accounts; track account.id) {
+        <article class="dossier">
+            <div class="dossier-top">
+                <div>
+                    <h2>{{ account.firstName }} {{ account.lastName }}</h2>
+                    <p>{{ account.email }} · {{ account.phone }}</p>
+                    <p class="meta">
+                        Né(e) le {{ account.dateOfBirth }} · créé le
+                        {{ account.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                    </p>
+                </div>
+                <span class="pill" [attr.data-tone]="tone(account.status)">
+                    {{ statusLabel(account.status) }}
+                </span>
+            </div>
+
+            @if (account.verification) {
+                <div class="checks">
+                    <div class="check">
+                        <span>CNI</span>
+                        <strong>{{ statusLabel(account.verification.document?.status) }}</strong>
+                    </div>
+                    <div class="check">
+                        <span>Présence</span>
+                        <strong>{{ statusLabel(account.verification.liveness?.status) }}</strong>
+                    </div>
+                    <div class="check">
+                        <span>Correspondance</span>
+                        <strong>{{ statusLabel(account.verification.faceMatch?.status) }}</strong>
+                    </div>
+                </div>
+                @if (account.verification.accountReady) {
+                    <p class="success">Ouverture possible</p>
+                }
+                @if (account.verification.workflowGap) {
+                    <div class="warning">{{ account.verification.workflowGap }}</div>
+                }
+            }
+
+            @if (account.verification?.document?.fullName) {
+                <p>
+                    Nom lu sur la pièce : {{ account.verification?.document?.fullName }}
+                    @if (account.verification?.document?.documentNumber) {
+                        · {{ account.verification?.document?.documentNumber }}
+                    }
+                </p>
+            }
+
+            <div class="button-row">
+                <button
+                    class="button button-ghost"
+                    type="button"
+                    [disabled]="refreshingId === account.id"
+                    (click)="refresh(account)"
+                >
+                    @if (refreshingId === account.id) {
+                        Actualisation…
+                    } @else {
+                        Actualiser
+                    }
+                </button>
+                @if (account.verificationUrl) {
+                    <a class="button button-ghost" [href]="account.verificationUrl">
+                        Ouvrir la vérification
+                    </a>
+                }
+            </div>
+        </article>
+    }
+</div>

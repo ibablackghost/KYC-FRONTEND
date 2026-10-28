@@ -52,7 +52,8 @@
                             "src/styles/vendors.scss",
                             "src/@fuse/styles/main.scss",
                             "src/styles/styles.scss",
-                            "src/styles/tailwind.scss"
+                            "src/styles/tailwind.scss",
+                            "src/styles/site.css"
                         ],
                         "scripts": []
                     },
@@ -82,6 +83,9 @@
                 },
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
+                    "options": {
+                        "proxyConfig": "proxy.conf.json"
+                    },
                     "configurations": {
                         "production": {
                             "buildTarget": "fuse:build:production"

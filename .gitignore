@@ -44,3 +44,7 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# KYC local secrets and dossiers
+server/.env
+server/data/

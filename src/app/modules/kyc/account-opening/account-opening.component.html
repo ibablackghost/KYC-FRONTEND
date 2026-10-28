@@ -1,0 +1,113 @@
+<section class="open">
+    <div class="guide">
+        <p class="kicker">Étape 1 sur 2</p>
+        <h1>Dites-nous qui ouvre le compte.</h1>
+        <p class="guide-text">
+            Ces informations servent à comparer la CNI. Juste après, Didit
+            vérifie la pièce, votre présence et la correspondance du visage.
+        </p>
+        <ol class="steps">
+            <li class="is-current">
+                <span>1</span>
+                <div>
+                    <strong>Informations</strong>
+                    <small>Vous êtes ici</small>
+                </div>
+            </li>
+            <li>
+                <span>2</span>
+                <div>
+                    <strong>CNI</strong>
+                    <small>Recto, verso si besoin</small>
+                </div>
+            </li>
+            <li>
+                <span>3</span>
+                <div>
+                    <strong>Présence</strong>
+                    <small>Une personne réelle devant la caméra</small>
+                </div>
+            </li>
+            <li>
+                <span>4</span>
+                <div>
+                    <strong>Visage</strong>
+                    <small>Comparé à la photo de la pièce</small>
+                </div>
+            </li>
+        </ol>
+    </div>
+
+    <form class="sheet" [formGroup]="form" (ngSubmit)="submit()">
+        <h2>Vos coordonnées</h2>
+        <p class="sheet-intro">Tous les champs sont obligatoires.</p>
+
+        @if (errorMessage) {
+            <div class="form-error">{{ errorMessage }}</div>
+        }
+
+        <div class="form-grid">
+            <label class="field">
+                <span>Prénom</span>
+                <input type="text" formControlName="firstName" autocomplete="given-name" />
+                @if (form.controls.firstName.touched && form.controls.firstName.invalid) {
+                    <small class="field-error">Indiquez le prénom de la CNI.</small>
+                }
+            </label>
+            <label class="field">
+                <span>Nom</span>
+                <input type="text" formControlName="lastName" autocomplete="family-name" />
+                @if (form.controls.lastName.touched && form.controls.lastName.invalid) {
+                    <small class="field-error">Indiquez le nom de la CNI.</small>
+                }
+            </label>
+            <label class="field field-wide">
+                <span>E-mail</span>
+                <input type="email" formControlName="email" autocomplete="email" />
+                @if (form.controls.email.touched && form.controls.email.invalid) {
+                    <small class="field-error">Adresse e-mail invalide.</small>
+                }
+            </label>
+            <label class="field">
+                <span>Téléphone</span>
+                <input type="tel" formControlName="phone" autocomplete="tel" placeholder="+221 77 000 00 00" />
+                @if (form.controls.phone.touched && form.controls.phone.invalid) {
+                    <small class="field-error">Numéro de téléphone invalide.</small>
+                }
+            </label>
+            <label class="field">
+                <span>Date de naissance</span>
+                <input type="date" formControlName="dateOfBirth" />
+                @if (form.controls.dateOfBirth.touched && form.controls.dateOfBirth.invalid) {
+                    <small class="field-error">Date de naissance obligatoire.</small>
+                }
+            </label>
+        </div>
+
+        <label class="consent">
+            <input type="checkbox" formControlName="consent" />
+            <span>
+                J’accepte la vérification de ma CNI, la détection de présence et
+                la comparaison de mon visage avec la photo de la pièce.
+            </span>
+        </label>
+        @if (form.controls.consent.touched && form.controls.consent.invalid) {
+            <small class="field-error">Le consentement est nécessaire pour continuer.</small>
+        }
+
+        <p class="fine-print">
+            Prestataire Didit :
+            <a href="https://didit.me/terms/verification-privacy-notice" target="_blank" rel="noopener noreferrer">confidentialité</a>
+            ·
+            <a href="https://didit.me/terms/identity-verification" target="_blank" rel="noopener noreferrer">conditions</a>
+        </p>
+
+        <button class="button" type="submit" [disabled]="submitting">
+            @if (submitting) {
+                Préparation…
+            } @else {
+                Continuer vers la vérification
+            }
+        </button>
+    </form>
+</section>

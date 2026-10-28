@@ -10,7 +10,12 @@ import { LayoutComponent } from 'app/layout/layout.component';
 export const appRoutes: Route[] = [
 
     // Redirect empty path to '/example'
-    {path: '', pathMatch : 'full', redirectTo: 'example'},
+    {path: '', pathMatch : 'full', redirectTo: 'ouvrir-compte'},
+
+    {
+        path: '',
+        loadChildren: () => import('app/modules/kyc/site.routes'),
+    },
 
     // Redirect signed-in user to the '/example'
     //

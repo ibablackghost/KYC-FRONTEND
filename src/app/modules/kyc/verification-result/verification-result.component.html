@@ -1,0 +1,137 @@
+<section class="page-title">
+    <h1>Résultat de la vérification</h1>
+</section>
+
+@if (loading) {
+    <article class="result">
+        <p>Lecture du dossier…</p>
+    </article>
+}
+
+@if (errorMessage && !account) {
+    <article class="empty">
+        <h2>Pas encore de vérification</h2>
+        <p>{{ errorMessage }}</p>
+        <a class="button" routerLink="/ouvrir-compte">Nouvelle demande</a>
+    </article>
+}
+
+@if (account) {
+    <article class="result">
+        <div class="status-row">
+            <div>
+                <span class="meta">Statut du dossier</span>
+                <h2>{{ account.firstName }} {{ account.lastName }}</h2>
+            </div>
+            <span class="pill" [attr.data-tone]="tone(account.status)">
+                {{ statusLabel(account.status) }}
+            </span>
+        </div>
+        <p>{{ account.email }}</p>
+
+        @if (waiting) {
+            <p class="muted">Actualisation automatique pendant la capture.</p>
+        }
+        @if (account.verificationError) {
+            <div class="warning">{{ account.verificationError }}</div>
+        }
+
+        <div class="checks">
+            <div class="check">
+                <span>CNI</span>
+                <strong>{{ statusLabel(account.verification?.document?.status) }}</strong>
+            </div>
+            <div class="check">
+                <span>Détection de présence</span>
+                <strong>{{ statusLabel(account.verification?.liveness?.status) }}</strong>
+                @if (scoreLabel(account.verification?.liveness?.score); as score) {
+                    <span>Score {{ score }}</span>
+                }
+            </div>
+            <div class="check">
+                <span>Correspondance faciale</span>
+                <strong>{{ statusLabel(account.verification?.faceMatch?.status) }}</strong>
+                @if (scoreLabel(account.verification?.faceMatch?.score); as score) {
+                    <span>Score {{ score }}</span>
+                }
+            </div>
+        </div>
+
+        @if (account.verification?.accountReady) {
+            <p class="success">
+                Les trois contrôles sont acceptés. Le compte peut être ouvert.
+            </p>
+        }
+        @if (account.verification?.workflowGap) {
+            <div class="warning">{{ account.verification?.workflowGap }}</div>
+        }
+
+        @if (account.verification?.document; as document) {
+            <dl class="facts">
+                <div>
+                    <dt>Document</dt>
+                    <dd>{{ document.type || 'CNI' }}</dd>
+                </div>
+                <div>
+                    <dt>Nom lu sur la pièce</dt>
+                    <dd>{{ document.fullName || '—' }}</dd>
+                </div>
+                <div>
+                    <dt>Nationalité</dt>
+                    <dd>{{ document.nationality || '—' }}</dd>
+                </div>
+                <div>
+                    <dt>Naissance</dt>
+                    <dd>{{ document.dateOfBirth || '—' }}</dd>
+                </div>
+                <div>
+                    <dt>N° de document</dt>
+                    <dd>{{ document.documentNumber || '—' }}</dd>
+                </div>
+                <div>
+                    <dt>Expiration</dt>
+                    <dd>{{ document.expirationDate || '—' }}</dd>
+                </div>
+            </dl>
+            @if (document.warnings.length) {
+                <ul>
+                    @for (warning of document.warnings; track warning) {
+                        <li>{{ warning }}</li>
+                    }
+                </ul>
+            }
+        } @else if (waiting) {
+            <p>
+                Terminez chez Didit la CNI, la présence et la correspondance.
+                Cette page se met à jour seule.
+            </p>
+        }
+
+        @if (account.verification?.aml) {
+            <p class="muted">
+                Filtrage AML : {{ statusLabel(account.verification?.aml?.status) }}
+                @if (account.verification?.aml?.totalHits != null) {
+                    · {{ account.verification?.aml?.totalHits }} alerte(s)
+                }
+            </p>
+        }
+
+        @if (stalled) {
+            <p>Le dossier est encore ouvert. Terminez la capture, puis actualisez.</p>
+        }
+
+        <div class="button-row">
+            @if (account.verificationUrl && (waiting || stalled)) {
+                <a class="button button-ghost" [href]="account.verificationUrl">
+                    Reprendre la vérification
+                </a>
+            }
+            @if (!waiting) {
+                <button class="button button-ghost" type="button" (click)="refresh()">
+                    Actualiser le résultat
+                </button>
+            }
+            <a class="button" routerLink="/dossiers">Voir les dossiers</a>
+        </div>
+    </article>
+}

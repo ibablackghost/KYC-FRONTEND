@@ -1,0 +1,39 @@
+<div class="site">
+    <header class="topbar">
+        <a class="logo" routerLink="/ouvrir-compte">
+            <span class="logo-mark"></span>
+            Ouverture
+        </a>
+        <nav>
+            <a
+                routerLink="/ouvrir-compte"
+                routerLinkActive="is-active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                >Accueil</a
+            >
+            <a routerLink="/dossiers" routerLinkActive="is-active">Dossiers</a>
+        </nav>
+    </header>
+
+    <main class="site-main">
+        <router-outlet></router-outlet>
+    </main>
+
+    <footer class="site-footer">
+        <p>Vérification faite par Didit.</p>
+        <nav>
+            <a
+                href="https://didit.me/terms/verification-privacy-notice"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Confidentialité</a
+            >
+            <a
+                href="https://didit.me/terms/identity-verification"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Conditions</a
+            >
+        </nav>
+    </footer>
+</div>
