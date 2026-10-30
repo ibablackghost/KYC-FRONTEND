@@ -23,7 +23,12 @@ export const authInterceptor = (
     const authService = inject(AuthService);
 
     // L'API KYC est publique : pas de jeton, pas de cookie, pas de CSRF.
-    if (req.url.startsWith(environment.apiUrl)) {
+    if (
+        req.url.startsWith(environment.apiUrl) ||
+        req.url.includes('/api/accounts') ||
+        req.url.includes('/api/verifications') ||
+        req.url.includes('/api/health')
+    ) {
         return next(req);
     }
 

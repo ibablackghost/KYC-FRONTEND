@@ -123,8 +123,17 @@ export class KycService {
     }
 
     private _url(path: string): string {
-        const base = environment.apiUrl.replace(/\/$/, '');
-        return `${base}${path}`;
+        return `${this._apiBase()}${path}`;
+    }
+
+    private _apiBase(): string {
+        if (typeof window !== 'undefined') {
+            const host = window.location.hostname;
+            if (host !== 'localhost' && host !== '127.0.0.1') {
+                return window.location.origin;
+            }
+        }
+        return environment.apiUrl.replace(/\/$/, '');
     }
 }
 

@@ -48,3 +48,4 @@ Thumbs.db
 # KYC local secrets and dossiers
 server/.env
 server/data/
+/certs
